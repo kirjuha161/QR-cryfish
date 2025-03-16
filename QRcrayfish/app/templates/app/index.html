@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>QR-cryfish</title>
+</head>
+
+<body>
+    <h1>QR-cryfish</h1>
+    <form method="get" action="{% url 'generate_qr' %}">
+        <label for="url">Вставьте URL:</label>
+        <input type="text" id="url" name="url" required>
+        <button type="submit">Создать Qr</button>
+    </form>
+</body>
+
+</html>
