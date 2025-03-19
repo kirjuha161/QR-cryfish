@@ -3,15 +3,181 @@
 
 <head>
     <title>QR-cryfish</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            /* Центрирование по вертикали */
+            align-items: center;
+            /* Центрирование по горизонтали */
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            background-color: #FFFFF0;
+            /* Цвет фона */
+            position: relative;
+            /* Для позиционирования элементов */
+            transition: background-color 0.3s ease;
+            /* Плавный переход для смены темы */
+        }
+
+        h1 {
+            position: absolute;
+            top: 12px;
+            /* Координата y */
+            left: 10px;
+            /* Координата x */
+            margin: 0;
+            font-weight: normal;
+            /* Убрана жирность текста */
+        }
+
+        svg.line {
+            position: absolute;
+            top: 60px;
+            /* Линия под логотипом */
+            left: 0;
+            width: 100%;
+        }
+
+        svg.bottom-line {
+            position: absolute;
+            bottom: 60px;
+            /* Линия поднята на 60px от нижнего края */
+            left: 0;
+            width: 100%;
+        }
+
+        form {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            /* Расположение элементов формы вертикально */
+            align-items: center;
+            /* Центрирование элементов формы */
+        }
+
+        label {
+            font-family: "Times New Roman", Times, serif;
+            /* Шрифт Times New Roman */
+            font-size: 35px;
+            /* Увеличен размер текста */
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input[type="text"] {
+            width: 600px;
+            /* Увеличена ширина строки */
+            height: 40px;
+            /* Высота строки */
+            border-radius: 20px;
+            /* Округлые края */
+            border: 1px solid black;
+            padding: 5px 15px;
+            background-color: black;
+            /* Черный фон */
+            color: white;
+            /* Белый текст */
+            font-size: 16px;
+            /* Размер текста */
+            margin-bottom: 20px;
+            /* Отступ снизу для строки ввода */
+        }
+
+        button {
+            width: 238px;
+            /* Ширина кнопки */
+            height: 53px;
+            /* Высота кнопки */
+            border-radius: 60px;
+            /* Радиус кнопки */
+            border: none;
+            background-color: gray;
+            /* Серый фон кнопки */
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #666;
+            /* Более темный серый при наведении */
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            /* Уменьшена ширина кнопки */
+            height: 30px;
+            /* Уменьшена высота кнопки */
+            border: none;
+            border-radius: 50%;
+            background-color: black;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            /* Уменьшен размер шрифта */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .theme-toggle:hover {
+            background-color: #333;
+        }
+
+        .dark-theme {
+            background-color: #333;
+            /* Темный фон */
+            color: white;
+            /* Белый текст */
+        }
+
+        .dark-theme input[type="text"] {
+            background-color: white;
+            /* Белый фон строки ввода */
+            color: black;
+            /* Черный текст */
+        }
+
+        .dark-theme button {
+            background-color: #555;
+            /* Темный фон кнопки */
+        }
+
+        .dark-theme button:hover {
+            background-color: #777;
+            /* Светлее при наведении */
+        }
+    </style>
 </head>
 
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
     <h1>QR-cryfish</h1>
+    <svg class="line" height="2">
+        <line x1="0" y1="0" x2="100%" y2="0" style="stroke:black;stroke-width:2" />
+    </svg>
     <form method="get" action="{% url 'generate_qr' %}">
-        <label for="url">Вставьте URL:</label>
+        <label for="url">Введите ссылку:</label>
         <input type="text" id="url" name="url" required>
         <button type="submit">Создать Qr</button>
     </form>
+    <svg class="bottom-line" height="2">
+        <line x1="0" y1="0" x2="100%" y2="0" style="stroke:black;stroke-width:2" />
+    </svg>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            body.classList.toggle('dark-theme');
+            themeToggle.textContent = body.classList.contains('dark-theme') ? '☀️' : '🌙';
+        }
+    </script>
 </body>
 
 </html>
