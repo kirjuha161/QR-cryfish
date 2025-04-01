@@ -1,13 +1,14 @@
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 import qrcode
 from io import BytesIO
 import base64
 
-
 def index(request):
     return render(request, "app/index.html")
 
+def about(request):
+    return render(request, "app/about.html")
 
 def generate_qr(request):
     url = request.GET.get("url")
@@ -17,6 +18,6 @@ def generate_qr(request):
         qr.save(buffer, format="PNG")
         buffer.seek(0)
         qr_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        return render(request, "app/qr_result.html", {"qr_image": qr_image})
+        return JsonResponse({"qr_image": qr_image})
     else:
-        return HttpResponse("No URL provided", status=400)
+        return JsonResponse({"error": "No URL provided"}, status=400)

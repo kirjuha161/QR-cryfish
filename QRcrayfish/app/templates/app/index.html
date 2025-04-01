@@ -19,6 +19,7 @@
             /* Для позиционирования элементов */
             transition: background-color 0.3s ease;
             /* Плавный переход для смены темы */
+            font-family: "Times New Roman", Times, serif;
         }
 
         h1 {
@@ -152,6 +153,98 @@
             background-color: #777;
             /* Светлее при наведении */
         }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 60%;
+            max-width: 800px;
+            height: 80%;
+            /* Увеличенная высота модального окна */
+            text-align: left;
+            /* Текст выравнивается по левому краю */
+            display: flex;
+            flex-direction: column;
+            /* Расположение элементов вертикально */
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        #qrImage {
+            width: 250px;
+            /* Уменьшенный размер QR-кода */
+            height: 250px;
+            /* Уменьшенный размер QR-кода */
+            margin-right: auto;
+            align-self: flex-start;
+            margin-top: auto;
+        }
+
+        .modal-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: auto;
+            text-align: center;
+            width: 100%;
+        }
+
+        .modal-buttons button {
+            margin-top: 10px;
+            width: 150px;
+            height: 40px;
+            border-radius: 20px;
+            border: none;
+            background-color: gray;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .modal-buttons button:hover {
+            background-color: #666;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .about-button:hover {
+            color: gray;
+            /* Цвет текста при наведении */
+        }
     </style>
 </head>
 
@@ -161,7 +254,7 @@
     <svg class="line" height="2">
         <line x1="0" y1="0" x2="100%" y2="0" style="stroke:black;stroke-width:2" />
     </svg>
-    <form method="get" action="{% url 'generate_qr' %}">
+    <form id="qrForm">
         <label for="url">Введите ссылку:</label>
         <input type="text" id="url" name="url" required>
         <button type="submit">Создать Qr</button>
@@ -170,12 +263,92 @@
         <line x1="0" y1="0" x2="100%" y2="0" style="stroke:black;stroke-width:2" />
     </svg>
 
+    <!-- Модальное окно -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <img id="qrImage" src="" alt="QR Code"
+                style="width: 250px; height: 250px; align-self: flex-start; margin-top: auto;">
+            <div class="modal-buttons" style="text-align: center; width: 100%;">
+                <label for="qrColor">Цвет QR-кода:</label>
+                <input type="color" id="qrColor" value="#000000">
+                <label for="qrBgColor">Цвет фона:</label>
+                <input type="color" id="qrBgColor" value="#ffffff">
+                <button onclick="updateQrCode()">Обновить</button>
+                <button onclick="closeModal()" style="margin: 20px auto;">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="text-align: center; position: fixed; bottom: 0; width: 100%; padding-bottom: 3px;">
+        <a href="{% url 'about' %}">
+            <button class="about-button"
+                style="border: none; background-color: transparent; color: black; font-size: 16px; cursor: pointer;">
+                О создателях
+            </button>
+        </a>
+    </div>
+
     <script>
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.querySelector('.theme-toggle');
             body.classList.toggle('dark-theme');
             themeToggle.textContent = body.classList.contains('dark-theme') ? '☀️' : '🌙';
+        }
+
+        document.getElementById('qrForm').onsubmit = function (event) {
+            event.preventDefault();
+            const url = document.getElementById('url').value;
+            fetch(`{% url 'generate_qr' %}?url=${encodeURIComponent(url)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.qr_image) {
+                        document.getElementById('qrImage').src = `data:image/png;base64,${data.qr_image}`;
+                        document.getElementById('qrModal').style.display = 'flex';
+                    } else {
+                        alert('Ошибка при генерации QR-кода');
+                    }
+                });
+        };
+
+        function closeModal() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('qrModal')) {
+                closeModal();
+            }
+        };
+
+        function updateQrCode() {
+            const url = document.getElementById('url').value;
+            const qrColor = document.getElementById('qrColor').value.substring(1); // Убираем #
+            const qrBgColor = document.getElementById('qrBgColor').value.substring(1); // Убираем #
+
+            if (!url) {
+                alert('Введите ссылку для генерации QR-кода');
+                return;
+            }
+
+            fetch(`/generate_qr/?url=${encodeURIComponent(url)}&color=${qrColor}&bgcolor=${qrBgColor}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Ошибка при запросе к серверу');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.qr_image) {
+                        document.getElementById('qrImage').src = `data:image/png;base64,${data.qr_image}`;
+                    } else {
+                        alert('Ошибка при обновлении QR-кода');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при обновлении QR-кода');
+                });
         }
     </script>
 </body>
